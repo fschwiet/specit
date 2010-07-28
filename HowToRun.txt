@@ -1,0 +1,6 @@
+﻿
+Find test source's address and add:
+
+    TestRunner.html?src=SpecIt.tests.js
+
+    TestRunner.html?src=TestRunnerTests/TestRunner.tests.js
