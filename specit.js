@@ -24,7 +24,14 @@
       this.currentBefore = function() {};
       this.currentAfter  = function() {};
       body();
-      module(description, {setup: this.currentBefore, teardown: this.currentAfter});
+      var that = this;
+      module(description, {
+        setup: function() {
+            body();
+            that.currentBefore();
+        }, 
+        teardown: this.currentAfter
+      });
       $.each(this.currentTests, function(i, currentTest) { currentTest(); });
     },
     it: function(description, body) {
