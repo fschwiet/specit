@@ -19,12 +19,12 @@ describe("TestRunner loads external references", function () {
 
     it("can load other js", function () {
 
-        TestRunner_tests_auxillary_value.should(eql, "12345");
+        verify(TestRunner_tests_auxillary_value).should(eql, "12345");
     });
 
     it("can load other xml", function () {
 
-        $('p.TestRunner_tests_auxillary_value').length.should(eql, 1);
+        verify($('p.TestRunner_tests_auxillary_value').length).should(eql, 1);
     });
 });
 
