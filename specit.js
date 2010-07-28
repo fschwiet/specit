@@ -6,6 +6,17 @@
     return SpecIt.expectations(this)[expectation].apply(this, matcherAndArgs);
   }
 
+  window.verify = function(target) {
+    return {
+        should : function(args) {
+            objectToSpecIt(target, "should", args);
+        },
+        shouldNot : function(expectation, args) {
+            objectToSpecIt(target, "shouldNot", args);
+        },
+    };
+  }
+
   function nativeShould()    { return objectToSpecIt.call(this, "should", arguments); }
   function nativeShouldNot() { return objectToSpecIt.call(this, "shouldNot", arguments); }
 
