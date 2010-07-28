@@ -1,3 +1,5 @@
+loadHtmlFile("SpecIt.tests.html");
+
 describe("SpecIt", function() {
   it("should match on inclusion", function() {
     [1, 2].should(include, 1);
