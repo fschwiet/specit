@@ -8,11 +8,11 @@
 
   window.verify = function(target) {
     return {
-        should : function(args) {
-            objectToSpecIt(target, "should", args);
+        should : function() {
+            objectToSpecIt.call(target, "should", arguments);
         },
-        shouldNot : function(expectation, args) {
-            objectToSpecIt(target, "shouldNot", args);
+        shouldNot : function() {
+            objectToSpecIt.call(target, "shouldNot", arguments);
         },
     };
   }
