@@ -1,18 +1,18 @@
 (function() {
-  function objectToSpecIt(expectation, args) {
+  function checkExpectation(that, expectation, args) {
     var args = $.makeArray(args),
         matcherAndArgs = [args.shift()];
     $.each(args, function(i, item) { matcherAndArgs.push(item); });
-    return SpecIt.expectations(this)[expectation].apply(this, matcherAndArgs);
+    return SpecIt.expectations(that)[expectation].apply(that, matcherAndArgs);
   }
 
   window.verify = function(target) {
     return {
         should : function() {
-            objectToSpecIt.call(target, "should", arguments);
+            checkExpectation(target, "should", arguments);
         },
         shouldNot : function() {
-            objectToSpecIt.call(target, "shouldNot", arguments);
+            checkExpectation(target, "shouldNot", arguments);
         },
     };
   }
@@ -39,7 +39,8 @@
       var expect = function(expectation, args) {
         var args = $.makeArray(args);
         SpecIt.currentExpectation = expectation;
-        args.shift().apply(current, args);
+        
+        args.shift().apply(null, [current].concat(args));
       };
       return {
         should:    function() { return expect("should",    arguments); },
@@ -111,7 +112,10 @@
     },
     matchers: {
       include: function() {
-        var args = $.makeArray(arguments), expectation = true, actual = this;
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
+        var args = $.makeArray(args), expectation = true, actual = that;
         $.each(args, function(i, item) {
           if(actual.constructor == Object && actual.length == undefined) {
             expectation = false;
@@ -127,105 +131,158 @@
                  actual:   {value: actual, parse: true}});
       },
       eql: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+
         Matcher("eql", "equal",
-                {expected: {value: arguments[0], parse: true},
-                 actual:   {value: this,         parse: true}});
+                {expected: {value: args[0], parse: true},
+                 actual:   {value: that,         parse: true}});
       },
       beSimilarTo: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         Matcher("beSimilarTo", "deepEqual",
-                {expected: {value: arguments[0], parse: true},
-                 actual:   {value: this,         parse: true}});
+                {expected: {value: args[0], parse: true},
+                 actual:   {value: that,         parse: true}});
       },
       be: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         Matcher("be", "ok",
-                {assert:   JSON.parse(JSON.stringify(this)),
+                {assert:   JSON.parse(JSON.stringify(that)),
                  expected: {value: true, parse: true},
-                 actual:   {value: this, parse: true}});
+                 actual:   {value: that, parse: true}});
       },
       beA: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+        
+        var actual = null;
+        
+        if (that != null)
+            actual = that.constructor.name;
+      
         Matcher("beA", "equals",
-                {expected: {value: arguments[0].name.toString(), parse: true},
-                 actual:   {value: this.constructor.name,        parse: true, messageValue: this}});
+                {expected: {value: args[0].name.toString(), parse: true},
+                 actual:   {value: actual,        parse: true, messageValue: that}});
       },
       beAn: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         Matcher("beAn", "equals",
-                {expected: {value: arguments[0].name.toString(), parse: true},
-                 actual:   {value: this.constructor.name,        parse: true, messageValue: this}});
+                {expected: {value: args[0].name.toString(), parse: true},
+                 actual:   {value: that.constructor.name,        parse: true, messageValue: that}});
       },
       match: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         Matcher("match", "ok",
-                {assert:   arguments[0].test(this),
-                 expected: {value: arguments[0], parse: true},
-                 actual:   {value: this,         parse: true}});
+                {assert:   args[0].test(that),
+                 expected: {value: args[0], parse: true},
+                 actual:   {value: that,         parse: true}});
       },
       respondTo: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         Matcher("respondTo", "ok",
-                {assert: typeof this[arguments[0]] === "function",
-                 expected: {value: arguments[0], parse: true},
-                 actual:   {value: this, parse: true}});
+                {assert: typeof that[args[0]] === "function",
+                 expected: {value: args[0], parse: true},
+                 actual:   {value: that, parse: true}});
       },
       beLessThan: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         Matcher("beLessThan", "ok",
-                {assert: this < arguments[0],
-                 expected: {value: arguments[0], parse: true},
-                 actual:   {value: this, parse: true}});
+                {assert: that < args[0],
+                 expected: {value: args[0], parse: true},
+                 actual:   {value: that, parse: true}});
       },
       beLessThanOrEqualTo: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         Matcher("beLessThanOrEqualTo", "ok",
-                {assert: this <= arguments[0],
-                 expected: {value: arguments[0], parse: true},
-                 actual:   {value: this, parse: true}});
+                {assert: that <= args[0],
+                 expected: {value: args[0], parse: true},
+                 actual:   {value: that, parse: true}});
       },
       beGreaterThan: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         Matcher("beGreaterThan", "ok",
-                {assert: this > arguments[0],
-                 expected: {value: arguments[0], parse: true},
-                 actual:   {value: this, parse: true}});
+                {assert: that > args[0],
+                 expected: {value: args[0], parse: true},
+                 actual:   {value: that, parse: true}});
       },
       beGreaterThanOrEqualTo: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         Matcher("beGreaterThanOrEqualTo", "ok",
-                {assert: this >= arguments[0],
-                 expected: {value: arguments[0], parse: true},
-                 actual:   {value: this, parse: true}});
+                {assert: that >= args[0],
+                 expected: {value: args[0], parse: true},
+                 actual:   {value: that, parse: true}});
       },
       beOnThePage: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         Matcher("beOnThePage", "ok",
-                {assert: $(this).length > 0,
-                 expected: {value: arguments[0], parse: true},
-                 actual:   {value: $(this).selector, parse: true}});
+                {assert: $(that).length > 0,
+                 expected: {value: args[0], parse: true},
+                 actual:   {value: $(that).selector, parse: true}});
       },
       beEmpty: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         var empty = true;
-        if (this.constructor == Object && this.length == undefined) {
-          for(var key in this) {
+        if (that.constructor == Object && that.length == undefined) {
+          for(var key in that) {
             if(!/should|shouldNot/.test(key)) { empty = false; }
           }
         } else {
-          if(this.length > 0) { empty = false; }
+          if(that.length > 0) { empty = false; }
         }
 
         Matcher("beEmpty", "ok",
                 {assert: empty,
-                 expected: {value: arguments[0], parse: true},
-                 actual:   {value: this, parse: true}});
+                 expected: {value: args[0], parse: true},
+                 actual:   {value: that, parse: true}});
       },
       beToTheLeftOf: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         Matcher("beToTheLeftOf", "ok",
-                {assert: $(this).offset().left < $(arguments[0]).offset().left,
-                 expected: {value: $(arguments[0]).selector, parse: true},
-                 actual:   {value: $(this).selector, parse: true}});
+                {assert: $(that).offset().left < $(args[0]).offset().left,
+                 expected: {value: $(args[0]).selector, parse: true},
+                 actual:   {value: $(that).selector, parse: true}});
       },
       beToTheRightOf: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         Matcher("beToTheRightOf", "ok",
-                {assert: ($(this).offset().left > ($(arguments[0]).offset().left + $(arguments[0]).width())),
-                 expected: {value: $(arguments[0]).selector, parse: true},
-                 actual:   {value: $(this).selector, parse: true}});
+                {assert: ($(that).offset().left > ($(args[0]).offset().left + $(arguments[0]).width())),
+                 expected: {value: $(args[0]).selector, parse: true},
+                 actual:   {value: $(that).selector, parse: true}});
       },
       beAbove: function() {
+        var args = $.makeArray(arguments);
+        var that = args.shift();
+      
         Matcher("beAbove", "ok",
-                {assert: $(this).offset().top < $(arguments[0]).offset().top,
-                 expected: {value: $(arguments[0]).selector, parse: true},
-                 actual:   {value: $(this).selector, parse: true}});
+                {assert: $(that).offset().top < $(args[0]).offset().top,
+                 expected: {value: $(args[0]).selector, parse: true},
+                 actual:   {value: $(that).selector, parse: true}});
       },
     }
   });

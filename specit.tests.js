@@ -2,10 +2,12 @@ loadHtmlFile("SpecIt.tests.html");
 
 describe("SpecIt", function() {
   it("should match on inclusion", function() {
+    verify([1, null]).should(include, null);
     verify([1, 2]).should(include, 1);
     verify([1, 2]).should(include, 1, 2);
     verify({one: 1, two: 2}).should(include, "one");
 
+    verify([1, 2]).shouldNot(include, null);
     verify([1, 2]).shouldNot(include, [1, 2]);
     verify([1, 2]).shouldNot(include, [1, 2], 1, 2);
     verify([1, 2]).shouldNot(include, 3);
@@ -22,10 +24,13 @@ describe("SpecIt", function() {
   });
 
   it("should match on equality", function() {
+    verify(null).should(eql, null);
     verify("string").should(eql, "string");
     verify(1).should(eql, 1);
     verify(true).should(eql, true);
 
+    verify(null).shouldNot(eql, "junk");
+    verify("junk").shouldNot(eql, null);
     verify("string").shouldNot(eql, "junk");
     verify([]).shouldNot(eql, []);
     verify(["tree"]).shouldNot(eql, ["tree"]);
@@ -34,6 +39,7 @@ describe("SpecIt", function() {
   });
 
   it("should match on similarity", function() {
+    verify(null).should(beSimilarTo, null);
     verify("string").should(beSimilarTo, "string");
     verify(1).should(beSimilarTo, 1);
     verify(true).should(beSimilarTo, true);
@@ -52,6 +58,7 @@ describe("SpecIt", function() {
     verify(true).should(be);
     verify(1).should(be);
 
+    verify(null).shouldNot(be);
     verify("").shouldNot(be);
     verify(false).shouldNot(be);
     verify(0).shouldNot(be);
@@ -69,6 +76,8 @@ describe("SpecIt", function() {
     verify("string").shouldNot(beAn, Object);
     verify("string").shouldNot(beA, Number);
     verify([]).shouldNot(beAn, Object);
+    verify(null).shouldNot(beA, Object);
+    verify(null).shouldNot(beA, String);
   });
 
   it("should match against regular expressions", function() {
@@ -114,6 +123,7 @@ describe("SpecIt", function() {
     verify(0.1).shouldNot(beLessThan, 0);
     verify(0.1).shouldNot(beLessThan, 0.05);
     verify(  5).shouldNot(beLessThan, 5);
+    verify(  null).should(beLessThan, 5);
   });
 
   it("should match on less than or equal to", function() {
