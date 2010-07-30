@@ -169,19 +169,24 @@
         var actual = null;
         
         if (that != null)
-            actual = that.constructor.name;
+            actual = that.constructor;
       
         Matcher("beA", "equals",
-                {expected: {value: args[0].name.toString(), parse: true},
+                {expected: {value: args[0], parse: true},
                  actual:   {value: actual,        parse: true, messageValue: that}});
       },
       beAn: function() {
         var args = $.makeArray(arguments);
         var that = args.shift();
       
+        var actual = null;
+        
+        if (that != null)
+            actual = that.constructor;
+      
         Matcher("beAn", "equals",
-                {expected: {value: args[0].name.toString(), parse: true},
-                 actual:   {value: that.constructor.name,        parse: true, messageValue: that}});
+                {expected: {value: args[0], parse: true},
+                 actual:   {value: that.constructor,        parse: true, messageValue: that}});
       },
       match: function() {
         var args = $.makeArray(arguments);
