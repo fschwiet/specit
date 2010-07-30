@@ -1,10 +1,5 @@
 loadHtmlFile("SpecIt.tests.html");
 
-var globallyUniqueIndex = 0;
-
-var lastRecordedInitializationIndex = null;
-var lastRecordedBeforeIndex = null;
-
 describe("SpecIt", function() {
   it("should match on inclusion", function() {
     verify([1, null]).should(include, null);
@@ -186,7 +181,7 @@ describe("SpecIt", function() {
   });
 });
 
-var john, beforeCallbackTest, afterCallbackTest;
+var john, beforeCallbackTest;
 
 describe("SpecIt with a before callback", function() {
   var jane = {name: "Jane"};
@@ -198,7 +193,6 @@ describe("SpecIt with a before callback", function() {
 
   it("should support before", function() {
     ok(beforeCallbackTest);
-    equal(afterCallbackTest, undefined);
   });
 
   it("should run before every test", function() {
@@ -222,7 +216,6 @@ describe("SpecIt runs initialization for each test", function () {
 
   it("should support before", function() {
     ok(beforeCallbackTest);
-    equal(afterCallbackTest, undefined);
   });
 
   it("should run before every test", function() {
@@ -237,6 +230,11 @@ describe("SpecIt runs initialization for each test", function () {
     equals(john.age, undefined);
   });
 });
+
+var globallyUniqueIndex = 0;
+
+var lastRecordedInitializationIndex = null;
+var lastRecordedBeforeIndex = null;
 
 describe("SpecIt maintains same scope across initialization as before() then each it()", function () {
 
