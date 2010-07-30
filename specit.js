@@ -20,25 +20,47 @@
   var SpecIt = {
     currentExpectation: 'should',
     describe: function(description, body) {
+
       this.currentTests = [];
       this.currentBefore = function() {};
       this.currentAfter  = function() {};
       body();
-      var that = this;
-      module(description, {
-        setup: function() {
-            body();
-            that.currentBefore();
-        }, 
-        teardown: this.currentAfter
-      });
-      $.each(this.currentTests, function(i, currentTest) { currentTest(); });
+
+      var originalTestsLoaded = this.currentTests;
+      var testCount = this.currentTests.length;
+
+      for (var i = 0; i < testCount; i++)
+      {
+          (function() {
+              var thisTestIndex = i;
+              var thisBefore;
+              var thisAfter;
+              var theseTests;
+
+              module(description, {
+                setup: function() {
+                    SpecIt.currentTests = [];
+                    SpecIt.currentBefore = function() {};
+                    SpecIt.currentAfter  = function() {};
+                    body();
+                    theseTests = SpecIt.currentTests;
+                    thisBefore = SpecIt.currentBefore;
+                    thisAfter = SpecIt.currentAfter;
+                    thisBefore();
+                }, 
+                teardown: function() {
+                    thisAfter();
+                }
+              });
+
+              test(originalTestsLoaded[thisTestIndex].description, function() {
+                  theseTests[thisTestIndex].body();
+              });
+          })();
+      }
     },
     it: function(description, body) {
-      currentTests.push(function() { test(description, body); });
-    },
-    asyncIt: function(description, body) {
-      currentTests.push(function() { asyncTest(description, body); });
+      SpecIt.currentTests.push({description : description, body : body});
     },
     before: function(callback) { this.currentBefore = callback; },
     after:  function(callback) { this.currentAfter  = callback; },
@@ -303,9 +325,14 @@
     window[matcher] = SpecIt.matchers[matcher];
   }
 
-  window.describe = SpecIt.describe;
-  window.it       = SpecIt.it;
-  window.asyncIt  = SpecIt.asyncIt;
-  window.before   = SpecIt.before;
-  window.after    = SpecIt.after;
+  function ExportSpecItMethod(method) {
+    window[method] = function() {
+      return SpecIt[method].apply(SpecIt, arguments);
+    };
+  }
+
+  ExportSpecItMethod("describe");
+  ExportSpecItMethod("it");
+  ExportSpecItMethod("before");
+  ExportSpecItMethod("after");
 })();

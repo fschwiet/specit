@@ -1,3 +1,4 @@
+
 loadHtmlFile("SpecIt.tests.html");
 
 describe("SpecIt", function() {
@@ -233,20 +234,24 @@ describe("SpecIt runs initialization for each test", function () {
 
 var globallyUniqueIndex = 0;
 
-var lastRecordedInitializationIndex = null;
-var lastRecordedBeforeIndex = null;
-
 describe("SpecIt maintains same scope across initialization as before() then each it()", function () {
 
-    lastRecordedInitializationIndex = ++globallyUniqueIndex;
+    var lastRecordedInitializationIndex = ++globallyUniqueIndex;
+    var lastRecordedBeforeIndex = null;
+    var lastRecordedItIndex = null;
 
     before(function () {
         lastRecordedBeforeIndex = lastRecordedInitializationIndex;
     });
 
     it("should have consistent initialization", function () {
-
         verify(lastRecordedBeforeIndex).should(eql, lastRecordedInitializationIndex);
+
+        lastRecordedItIndex = lastRecordedInitializationIndex;
+    });
+
+    after(function () {
+        verify(lastRecordedItIndex).should(eql, lastRecordedInitializationIndex);
     });
 });
 
@@ -269,9 +274,10 @@ describe("SpecIt with a different before callback", function() {
   });
 });
 
-describe("SpecIt with an after callback", function() {
-  var changedFromAfterCallback = "unchanged";
 
+var changedFromAfterCallback = "unchanged";
+
+describe("SpecIt with an after callback", function() {
   after(function() {
     changedFromAfterCallback = "changed";
   });
@@ -281,11 +287,6 @@ describe("SpecIt with an after callback", function() {
   });
 
   it("should call the after callback the first test is run", function() {
-    equals(changedFromAfterCallback, "changed");
-    changedFromAfterCallback = "bogus";
-  });
-
-  it("should call the after callback after each test is run", function() {
     equals(changedFromAfterCallback, "changed");
   });
 });
