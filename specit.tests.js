@@ -1,5 +1,10 @@
 loadHtmlFile("SpecIt.tests.html");
 
+var globallyUniqueIndex = 0;
+
+var lastRecordedInitializationIndex = null;
+var lastRecordedBeforeIndex = null;
+
 describe("SpecIt", function() {
   it("should match on inclusion", function() {
     verify([1, null]).should(include, null);
@@ -209,7 +214,8 @@ describe("SpecIt with a before callback", function() {
   });
 });
 
-describe("SpecIt's before callback is optional though", function() {
+describe("SpecIt runs initialization for each test", function () {
+
   var jane = {name: "Jane"};
   beforeCallbackTest = true;
   john = {name: "John Doe"};
@@ -230,6 +236,20 @@ describe("SpecIt's before callback is optional though", function() {
   it("should not know attributes from another before callback", function() {
     equals(john.age, undefined);
   });
+});
+
+describe("SpecIt maintains same scope across initialization as before() then each it()", function () {
+
+    lastRecordedInitializationIndex = ++globallyUniqueIndex;
+
+    before(function () {
+        lastRecordedBeforeIndex = lastRecordedInitializationIndex;
+    });
+
+    it("should have consistent initialization", function () {
+
+        verify(lastRecordedBeforeIndex).should(eql, lastRecordedInitializationIndex);
+    });
 });
 
 // the john object will carry over, but the jane object will not
