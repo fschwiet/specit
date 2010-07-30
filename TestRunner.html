@@ -43,13 +43,14 @@
     <h2 id="qunit-userAgent"></h2>
     <ol id="qunit-tests"></ol>
   </body>
-  
 
     <script  type="text/javascript">
 
-        var testFile = getParameterByName("src");
+        var needToWaitForLoad = false;
 
         function loadJsFile(file) {
+
+            needToWaitForLoad = true;
 
             var s = window.document.createElement('script');
             s.type = "text/javascript";
@@ -60,6 +61,8 @@
 
         function loadHtmlFile(file) {
 
+            needToWaitForLoad = true;
+
             $.ajax({
                 url: file, 
                 success: function (data) {
@@ -68,14 +71,40 @@
             });
         }
 
+        var originalDescribe = window.describe;
+
+        var recordedDescribes = [];
+        window.describe = function () {
+            recordedDescribes.push($.makeArray(arguments));
+        };
+
+        function runTestsOrRequeue() {
+
+            if (needToWaitForLoad) {
+                loadJsFile("TestRunner.sync.js?cacheBuster=" + Math.floor(Math.random() * 30000) + "_" + Math.floor(Math.random() * 30000) + "_" + Math.floor(Math.random() * 30000) + "_");
+                needToWaitForLoad = false;
+            } else {
+                window.describe = originalDescribe;
+
+                var decribesToRun = recordedDescribes;
+                recordedDescribes = [];
+
+                for (var i = 0; i < decribesToRun.length; i++) {
+                    window.describe.apply(null, decribesToRun[i]); 
+                }
+            }
+        }
+
         if (testFile.length > 0) {
 
             loadJsFile(testFile);
         }
         else {
 
-            window.location = window.location + "?&src=can/i/have/testfile/relative/to/TestRunner";
+            window.location = window.location + "?&src=js";
         }
-    </script>  
-</html>
 
+        runTestsOrRequeue();
+
+    </script>
+</html>
